@@ -1,32 +1,29 @@
 import { takeLatest, all } from 'redux-saga/effects'
-import API from '../Services/Api'
-import FixtureAPI from '../Services/FixtureApi'
-import DebugConfig from '../Config/DebugConfig'
-
+import RazenaApi from '../Services/RazenaApi'
 /* ------------- Types ------------- */
 
-import { StartupTypes } from '../Redux/StartupRedux'
-import { GithubTypes } from '../Redux/GithubRedux'
+import { LoginTypes } from '../Redux/LoginRedux';
+import { ProdutosTypes } from '../Redux/ProdutosRedux';
+import { VendasConsumoTypes } from '../Redux/VendasConsumoRedux';
 
 /* ------------- Sagas ------------- */
 
-import { startup } from './StartupSagas'
-import { getUserAvatar } from './GithubSagas'
+import { doLogin } from './LoginSagas';
+import { createUser } from './CreateUserSagas';
+import { getProdutos } from './ProdutosSagas';
+import { createVendaConsumo } from './VendasConsumoSagas';
 
 /* ------------- API ------------- */
 
-// The API we use is only used from Sagas, so we create it here and pass along
-// to the sagas which need it.
-const api = DebugConfig.useFixtures ? FixtureAPI : API.create()
+const razenaApi = RazenaApi.create();
 
 /* ------------- Connect Types To Sagas ------------- */
 
 export default function * root () {
   yield all([
-    // some sagas only receive an action
-    takeLatest(StartupTypes.STARTUP, startup),
-
-    // some sagas receive extra parameters in addition to an action
-    takeLatest(GithubTypes.USER_REQUEST, getUserAvatar, api)
+    takeLatest(LoginTypes.DO_LOGIN, doLogin, razenaApi),
+    takeLatest(LoginTypes.CREATE_USER, createUser, razenaApi),
+    takeLatest(ProdutosTypes.GET_PRODUTOS, getProdutos, razenaApi),
+    takeLatest(VendasConsumoTypes.CREATE_VENDA, createVendaConsumo, razenaApi),
   ])
 }
